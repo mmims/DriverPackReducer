@@ -35,7 +35,7 @@ Global Const $gCatalogFileEntries[5] = [ _
 Global Const _
 	  $_DESC    = "Creates a reduced driver set using symbolic links." _
 	, $_TITLE   = "Driver Reducer" _
-	, $_VERSION = "0.5"
+	, $_VERSION = "0.6.0"
 Global Const $gValidSizePrefixes[6] = ["k","ki","m","mi","g","gi"]
 Global Enum Step *2 $_ERROR_NONE=0,$_ERROR_INVALIDARG=1,$_ERROR_DUPLICATEARG,$_ERROR_INVALIDSWITCH,$_ERROR_NOBASEDIR _
 	,$_ERROR_BASEDIRDNE,$_ERROR_FULLDIRDNE,$_ERROR_REDUCEDDIRDNE
@@ -229,7 +229,7 @@ EndFunc  ;==>_Driver_CreateReducedLinks
 
 Func _Driver_GetDriverFiles(ByRef $aDriverFiles, $sBaseDir, $bRecurse = True)
 	If Not FileExists($sBaseDir) Then Return SetError(1, 0, 0)
-	Local $hSearch, $bIsDir, $sFile, $sFullPath, $aSections
+	Local $hSearch, $bIsDir, $sFile, $sFullPath, $sSignature
 
 	If Not IsArray($aDriverFiles) Then Dim $aDriverFiles[1] = [0]
 	If StringRight($sBaseDir, 1) <> "\" Then $sBaseDir &= "\"
@@ -247,9 +247,9 @@ Func _Driver_GetDriverFiles(ByRef $aDriverFiles, $sBaseDir, $bRecurse = True)
 		If $bIsDir And $bRecurse Then
 			_Driver_GetDriverFiles($aDriverFiles, $sFullPath)
 		ElseIf StringRegExp($sFile, "(?i)\A.+\.inf\Z") == 1 Then
-			$aSections = IniReadSectionNames($sFullPath)
+			$sSignature = IniRead($sFullPath, "Version", "Signature", "")
 			If @error Then ContinueLoop
-			If _ArraySearch($aSections, "SourceDisksFiles", 1) > 0 Then
+			If StringCompare($sSignature, "$Windows NT$") == 0 Then
 				_ArrayAdd($aDriverFiles, $sFullPath)
 				$aDriverFiles[0] += 1
 			EndIf
