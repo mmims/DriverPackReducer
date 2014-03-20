@@ -248,8 +248,7 @@ Func _Driver_GetDriverFiles(ByRef $aDriverFiles, $sBaseDir, $bRecurse = True)
 			_Driver_GetDriverFiles($aDriverFiles, $sFullPath)
 		ElseIf StringRegExp($sFile, "(?i)\A.+\.inf\Z") == 1 Then
 			$sSignature = IniRead($sFullPath, "Version", "Signature", "")
-			If @error Then ContinueLoop
-			If StringCompare($sSignature, "$Windows NT$") == 0 Then
+			If StringRegExp($sSignature, "(?i)\$Windows NT\$|\$CHICAGO\$") == 1 Then
 				_ArrayAdd($aDriverFiles, $sFullPath)
 				$aDriverFiles[0] += 1
 			EndIf
